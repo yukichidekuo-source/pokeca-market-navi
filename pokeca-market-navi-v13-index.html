@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<meta name="description" content="ポケカ相場ナビ - パック・カード名・レアリティからポケモンカードを検索">
+<title>ポケカ相場ナビ</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#f4f6fa;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--blue:#2563eb;--purple:#5b21b6}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
+a{text-decoration:none;color:inherit}.wrap{width:min(760px,calc(100% - 32px));margin:auto}
+.hero{color:#fff;background:linear-gradient(135deg,#172554,#1d4ed8 55%,#5b21b6);padding:36px 0 78px}
+.brand{font-size:16px;font-weight:900;display:flex;align-items:center;gap:9px}.brand span{width:11px;height:11px;background:#60a5fa;border-radius:50%}
+.hero h1{font-size:38px;line-height:1.2;letter-spacing:-.04em;margin:40px 0 12px}.hero em{font-style:normal;color:#93c5fd}.hero p{color:#dbeafe;line-height:1.7;margin:0}
+main{margin-top:-38px;padding-bottom:50px}.search-card{background:#fff;border-radius:22px;padding:22px;box-shadow:0 15px 45px #0f172a18;margin-bottom:32px}
+.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.title small{color:var(--blue);font-size:11px;font-weight:900;letter-spacing:.14em}.title h2{font-size:22px;margin:5px 0 0}.title>b{font-size:11px;color:#4338ca;background:#eef2ff;border-radius:99px;padding:7px 10px}.plain{margin-bottom:13px}
+label{display:block;font-size:13px;font-weight:800;margin:16px 0 7px}.full{width:100%}
+input,select{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:14px;font-size:15px;outline:none;color:var(--text)}input:focus,select:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #dbeafe}
+.row{display:flex;gap:8px}.row input{flex:1;min-width:0}button{border:0;border-radius:12px;background:var(--blue);color:#fff;font-weight:900;padding:0 20px;font-size:15px;cursor:pointer}.secondary{background:#eef2f7;color:#334155;padding:10px 13px;font-size:12px}
+.set-info{display:flex;align-items:center;gap:10px;background:#f8fafc;border-radius:13px;padding:10px;margin-top:9px}.set-info img{width:46px;height:46px;object-fit:contain}.set-info b{display:block;font-size:13px}.set-info span{font-size:11px;color:var(--muted)}.hidden{display:none}
+.filter-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.result-count{font-size:12px;font-weight:800;color:#475569}
+.status{font-size:12px;color:var(--muted);margin:14px 0 8px}.results{display:grid;gap:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px;display:grid;grid-template-columns:92px 1fr;gap:13px}.thumb{width:92px;height:128px;border-radius:9px;background:#f1f5f9;object-fit:contain}.item-main{min-width:0}.head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.item strong{font-size:16px;line-height:1.4}.rarity{background:#eef2ff;color:#4338ca;border-radius:99px;padding:5px 8px;font-size:10px;white-space:nowrap}.meta{font-size:11px;color:var(--muted);margin-top:5px}.prices{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.price{background:#f8fafc;border-radius:10px;padding:9px}.price span{display:block;color:var(--muted);font-size:10px}.price b{font-size:17px}.notice{font-size:9px;color:#9ca3af;line-height:1.5;margin:8px 0 0}.empty{background:#f8fafc;border-radius:13px;padding:18px;text-align:center;color:var(--muted);font-size:12px}
+.shops{display:grid;gap:10px}.shops a{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px}.shops i{width:42px;height:42px;border-radius:12px;background:#111827;color:#fff;display:grid;place-items:center;font-size:20px;font-style:normal;font-weight:900}.shops div{flex:1}.shops strong,.shops span{display:block}.shops span{font-size:12px;color:var(--muted);margin-top:3px}.shops a>b{font-size:24px;color:#64748b}
+.next{margin-top:34px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid article{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.grid small{color:var(--blue);font-weight:900}.grid strong{display:block;margin-top:8px}.grid p{font-size:12px;color:var(--muted);line-height:1.6;margin:5px 0 0}
+footer{text-align:center;color:#9ca3af;font-size:11px;padding:20px}
+.image-loading{display:grid;place-items:center;color:#9ca3af;font-size:10px}.image-error{display:grid;place-items:center;color:#9ca3af;font-size:10px;text-align:center;padding:8px}
+@media(max-width:520px){.hero h1{font-size:32px}.row{display:grid;grid-template-columns:1fr 90px}.row button{padding:14px}.grid{grid-template-columns:1fr}.item{grid-template-columns:78px 1fr}.thumb{width:78px;height:110px}.prices{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span></span>ポケカ相場ナビ</div>
+    <h1>ポケカの相場を、<br><em>かんたんチェック。</em></h1>
+    <p>パック・カード名・レアリティから検索。カード画像も確認できます。</p>
+  </div>
+</header>
+<main class="wrap">
+<section class="search-card">
+  <div class="title"><div><small>SEARCH</small><h2>カードを検索</h2></div><b>β版</b></div>
+  <label for="setSearch">① パック・セットを選択</label>
+  <input id="setSearch" class="full" type="search" placeholder="例：ロケット団、熱風のアリーナ">
+  <select id="setSelect" class="full"><option value="">パックを読み込み中…</option></select>
+  <div id="setInfo" class="set-info hidden"></div>
+  <label for="cardSearch">② カード名・カード番号</label>
+  <div class="row"><input id="cardSearch" type="search" placeholder="例：ピカチュウ / 035"><button id="searchBtn">検索</button></div>
+  <label for="raritySelect">③ レアリティ</label>
+  <select id="raritySelect" class="full"><option value="">すべてのレアリティ</option></select>
+  <div class="filter-actions"><button id="clearBtn" class="secondary">条件をクリア</button><span id="resultCount" class="result-count"></span></div>
+  <div id="status" class="status">パック情報を読み込んでいます…</div>
+  <div id="results" class="results"></div>
+</section>
+<section>
+  <div class="title plain"><div><small>SHOP</small><h2>ショップを探す</h2></div></div>
+  <div class="shops">
+    <a href="https://magi.camp/" target="_blank" rel="noopener"><i>m</i><div><strong>magi</strong><span>カードの販売・買取</span></div><b>›</b></a>
+    <a href="https://www.cardrush-pokemon.jp/" target="_blank" rel="noopener"><i>C</i><div><strong>カードラッシュ</strong><span>ポケカ販売・買取</span></div><b>›</b></a>
+  </div>
+</section>
+<section class="next">
+  <div class="title plain"><div><small>ROADMAP</small><h2>次に追加する機能</h2></div></div>
+  <div class="grid">
+    <article><small>01</small><strong>実相場</strong><p>販売・買取価格を取得して比較</p></article>
+    <article><small>02</small><strong>価格推移</strong><p>7日・30日・90日の変化を表示</p></article>
+    <article><small>03</small><strong>高騰チェック</strong><p>値上がり・値下がりカードを発見</p></article>
+    <article><small>04</small><strong>アフィリエイト</strong><p>購入・買取ページへの導線</p></article>
+  </div>
+</section>
+</main>
+<footer>© 2026 ポケカ相場ナビ</footer>
+<script>
+const API="https://api.tcgdex.net/v2/ja";
+const API_EN="https://api.tcgdex.net/v2/en";
+let sets=[], currentCards=[], selectedSet=null;
+let rawSetGroups=[];
+let visibleSets=[];
+let detailCache=new Map();
+let searchToken=0;
+
+const setSearch=document.getElementById("setSearch");
+const setSelect=document.getElementById("setSelect");
+const setInfo=document.getElementById("setInfo");
+const cardSearch=document.getElementById("cardSearch");
+const raritySelect=document.getElementById("raritySelect");
+const results=document.getElementById("results");
+const statusEl=document.getElementById("status");
+const resultCount=document.getElementById("resultCount");
+
+function textName(v){
+  if(typeof v==="string") return v;
+  if(v && typeof v==="object") return v.ja || v.en || v.name || "";
+  return "";
+}
+function setName(s){ return textName(s.name); }
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+function imageCandidates(image){
+  if(!image) return [];
+  const base=String(image).replace(/\/+$/,'').replace(/\.(webp|png|jpg|jpeg)$/i,'');
+  const langs=[base];
+  if(base.includes('/ja/')) langs.push(base.replace('/ja/','/en/'));
+  if(base.includes('/en/')) langs.push(base.replace('/en/','/ja/'));
+  const out=[];
+  for(const b of langs){
+    out.push(`${b}/high.webp`,`${b}/high.png`,`${b}/low.webp`,`${b}/low.png`);
+  }
+  return [...new Set(out)];
+}
+function directImage(image){ return imageCandidates(image)[0] || ""; }
+
+function setImageWithFallback(el, candidates){
+  if(!candidates.length){
+    el.className="thumb image-error";
+    el.textContent="画像なし";
+    return;
+  }
+  let i=0;
+  const next=()=>{
+    if(i>=candidates.length){
+      el.className="thumb image-error";
+      el.textContent="画像なし";
+      return;
+    }
+    el.src=candidates[i++];
+  };
+  el.onerror=next;
+  next();
+}
+
+async function loadSets(){
+  try{
+    const res=await fetch(`${API}/sets`);
+    if(!res.ok) throw new Error("sets");
+    const raw=await res.json();
+    rawSetGroups=groupSets(Array.isArray(raw)?raw:[]);
+    sets=rawSetGroups;
+    renderSetOptions(sets);
+    await loadRarities();
+    statusEl.textContent=`${sets.length}個のパック・セットを読み込みました`;
+  }catch(e){
+    console.error(e);
+    statusEl.textContent="パック情報を読み込めませんでした。時間を置いて再読み込みしてください。";
+    setSelect.innerHTML='<option value="">読み込み失敗</option>';
+  }
+}
+
+function normalizeSetText(v){
+  return String(v||"").trim().toLowerCase().replace(/[\s　]+/g," ");
+}
+
+// TCGdexの同一セット重複を「名前だけ」で潰さず、同じ表示名・発売日・枚数を
+// 1グループにまとめ、内部では候補IDを全部保持する。選択時にカード数が最も多い
+// 正常なIDを自動採用するので、壊れた重複IDを引いて0件になる問題を避ける。
+function setGroupKey(s){
+  const name=normalizeSetText(setName(s));
+  const date=String(s.releaseDate||"").trim();
+  const total=String(s.cardCount?.total||"").trim();
+  return `${name}|${date}|${total}`;
+}
+
+function groupSets(list){
+  const map=new Map();
+  for(const s of list){
+    const key=setGroupKey(s);
+    if(!key || key.startsWith('|')) continue;
+    let g=map.get(key);
+    if(!g){
+      g={...s, ids:[], candidates:[]};
+      map.set(key,g);
+    }
+    const id=String(s.id||"").trim();
+    if(id && !g.ids.includes(id)) g.ids.push(id);
+    g.candidates.push(s);
+    // ロゴや枚数など不足情報は別候補から補完
+    if(!g.logo && s.logo) g.logo=s.logo;
+    if(!g.releaseDate && s.releaseDate) g.releaseDate=s.releaseDate;
+    if(!g.cardCount && s.cardCount) g.cardCount=s.cardCount;
+  }
+  return [...map.values()];
+}
+
+function renderSetOptions(list){
+  visibleSets=list;
+  setSelect.innerHTML='<option value="">パックを選択してください</option>';
+  list.forEach((s,i)=>{
+    const o=document.createElement("option");
+    o.value=String(i);
+    o.textContent=`${setName(s)}（${s.cardCount?.total||"?"}枚）`;
+    setSelect.appendChild(o);
+  });
+}
+
+setSelect.addEventListener("change",async()=>{
+  const idx=Number(setSelect.value);
+  cardSearch.value="";
+  raritySelect.value="";
+  detailCache.clear();
+  if(!Number.isInteger(idx) || !visibleSets[idx]){
+    selectedSet=null;currentCards=[];setInfo.classList.add("hidden");results.innerHTML="";resultCount.textContent="";
+    statusEl.textContent="パックを選択してください";
+    return;
+  }
+  selectedSet=visibleSets[idx];
+  await loadSet(selectedSet);
+});
+
+async function loadSet(group){
+  const token=++searchToken;
+  statusEl.textContent="カード一覧を読み込んでいます…";
+  results.innerHTML="";resultCount.textContent="";
+  const expected=Number(group.cardCount?.total||0);
+  let best={data:null,cards:[],id:null};
+  const ids=[...(group.ids||[])];
+
+  // まずグループ内の全IDを試し、カード数が最大のレスポンスを採用する。
+  for(const id of ids){
+    for(const apiBase of [API,API_EN]){
+      try{
+        const data=await fetchJson(`${apiBase}/sets/${encodeURIComponent(id)}`);
+        const cards=Array.isArray(data.cards)?data.cards:[];
+        if(cards.length>best.cards.length){best={data,cards,id};}
+        if(cards.length>=expected && expected>0) break;
+      }catch(e){}
+    }
+    if(best.cards.length>=expected && expected>0) break;
+  }
+
+  // セット詳細が不完全でも、set.idフィルタAPIから補完する。
+  let cards=best.cards||[];
+  for(const apiBase of [API,API_EN]){
+    if(cards.length>=expected && expected>0) break;
+    for(const id of ids){
+      const bySet=await fetchCardsBySet(id,apiBase);
+      cards=mergeCards(cards,bySet);
+      if(cards.length>=expected && expected>0) break;
+    }
+  }
+
+  // 最後の手段：既に得られたlocalIdを使って個別カード詳細を補完。
+  if(cards.length && (expected===0 || cards.length<expected)){
+    const recovered=await recoverCardsByKnownIds(best.id||ids[0],cards);
+    cards=mergeCards(cards,recovered);
+  }
+
+  // 既知の枚数があるのに0件なら、候補IDを順に直接探索する。
+  if(!cards.length && ids.length){
+    for(const id of ids){
+      const recovered=await recoverCardsByLocalId(id,expected);
+      if(recovered.length>cards.length) cards=recovered;
+      if(cards.length>=expected && expected>0) break;
+    }
+  }
+
+  currentCards=dedupeCards(cards).sort((a,b)=>compareLocalId(a.localId,b.localId));
+  if(token!==searchToken) return;
+  const data=best.data || group;
+  showSetInfo({...group,...data});
+  await populateRaritiesFromCards();
+  statusEl.textContent=`${textName(data.name||group.name)}：${currentCards.length}枚${expected&&currentCards.length<expected?`（取得 ${currentCards.length}/${expected}枚）`:'（全件表示）'}`;
+  await applyFilters();
+}
+
+async function fetchCardsBySet(setId, apiBase){
+  const all=[]; const seen=new Set();
+  // TCGdexのフィルタ記法は環境差があるため、複数の書式を試す。
+  const urls=[
+    `${apiBase}/cards?set.id=${encodeURIComponent(setId)}`,
+    `${apiBase}/cards?set.id=${encodeURIComponent('eq:'+setId)}`
+  ];
+  for(const base of urls){
+    for(let page=1; page<=30; page++){
+      const sep=base.includes('?')?'&':'?';
+      const url=`${base}${sep}pagination:page=${page}&pagination:itemsPerPage=100`;
+      try{
+        const data=await fetchJson(url);
+        if(!Array.isArray(data)||!data.length) break;
+        for(const c of data){
+          const key=String(c.id||`${c.localId||''}|${textName(c.name)}`).toLowerCase();
+          if(!seen.has(key)){seen.add(key);all.push(c);}
+        }
+        if(data.length<100) break;
+      }catch(e){break;}
+    }
+    if(all.length) break;
+  }
+  return all;
+}
+
+async function loadRarities(){
+  try{
+    const res=await fetch(`${API}/rarities`);
+    if(!res.ok) throw new Error("rarities");
+    const data=await res.json();
+    const list=Array.isArray(data)?data:[];
+    raritySelect.innerHTML='<option value="">すべてのレアリティ</option>';
+    list.forEach(r=>{
+      const value=typeof r==="string"?r:(r?.name||r?.ja||r?.en||"");
+      if(!value) return;
+      const o=document.createElement("option");
+      o.value=value;o.textContent=value;
+      raritySelect.appendChild(o);
+    });
+  }catch(e){
+    // APIにレアリティ一覧が無い場合も、カード側の値から動的に作る。
+    raritySelect.innerHTML='<option value="">すべてのレアリティ</option>';
+  }
+}
+
+setSearch.addEventListener("input",()=>{
+  const q=setSearch.value.trim().toLowerCase();
+  const filtered=q?sets.filter(s=>setName(s).toLowerCase().includes(q)):sets;
+  renderSetOptions(filtered.slice(0,200));
+});
+
+
+function mergeCards(a,b){
+  const map=new Map();
+  [...(a||[]),...(b||[])].forEach(c=>{
+    if(!c) return;
+    const key=String(c.id||`${c.localId||''}|${textName(c.name)}`).toLowerCase();
+    const old=map.get(key);
+    map.set(key,old?{...old,...c}:c);
+  });
+  return [...map.values()];
+}
+
+async function recoverCardsByKnownIds(setId, cards){
+  const ids=[...new Set((cards||[]).map(c=>String(c.localId||'')).filter(Boolean))];
+  if(!ids.length) return [];
+  return dedupeCards(await mapLimit(ids,8,async localId=>{
+    const urls=[
+      `${API}/sets/${encodeURIComponent(setId)}/${encodeURIComponent(localId)}`,
+      `${API_EN}/sets/${encodeURIComponent(setId)}/${encodeURIComponent(localId)}`
+    ];
+    for(const url of urls){
+      try{
+        const card=await fetchJson(url);
+        if(card && card.id) return card;
+      }catch(e){}
+    }
+    return null;
+  }).then(cards=>cards.filter(Boolean)));
+}
+
+function dedupeCards(cards){
+  const seen=new Set();
+  return cards.filter(c=>{
+    const key=String(c.id||`${c.localId||''}|${textName(c.name)}`).toLowerCase();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+async function recoverCardsByLocalId(setId,total){
+  // 旧版互換用。v10ではfetchCardsBySetを優先する。
+  const ids=[];
+  const max=Math.max(Number(total)||0,1)+20;
+  for(let n=1;n<=max;n++){ ids.push(String(n)); ids.push(String(n).padStart(3,'0')); }
+  return dedupeCards(await mapLimit([...new Set(ids)],8,async localId=>{
+    for(const apiBase of [API,API_EN]){
+      try{
+        const card=await fetchJson(`${apiBase}/sets/${encodeURIComponent(setId)}/${encodeURIComponent(localId)}`);
+        if(card?.id) return card;
+      }catch(e){}
+    }
+    return null;
+  }).then(x=>x.filter(Boolean)));
+}
+
+async function populateRaritiesFromCards(){
+  const values=new Set();
+  currentCards.forEach(c=>{if(c.rarity) values.add(String(c.rarity));});
+  if(!values.size && currentCards.length){
+    const sample=await getCardDetails(currentCards.slice(0,Math.min(currentCards.length,40)));
+    sample.forEach(c=>{if(c.rarity) values.add(String(c.rarity));});
+  }
+  if(!values.size) return;
+  const current=raritySelect.value;
+  raritySelect.innerHTML='<option value="">すべてのレアリティ</option>';
+  [...values].sort((a,b)=>a.localeCompare(b,'ja')).forEach(value=>{
+    const o=document.createElement('option');
+    o.value=value;o.textContent=value;raritySelect.appendChild(o);
+  });
+  if([...raritySelect.options].some(o=>o.value===current)) raritySelect.value=current;
+}
+
+function compareLocalId(a,b){
+  const na=parseInt(String(a||"").match(/\d+/)?.[0]||"999999",10);
+  const nb=parseInt(String(b||"").match(/\d+/)?.[0]||"999999",10);
+  if(na!==nb) return na-nb;
+  return String(a||"").localeCompare(String(b||""),"ja");
+}
+
+function showSetInfo(s){
+  const logo=directImage(s.logo);
+  setInfo.innerHTML=(logo?`<img src="${esc(logo)}" alt="" onerror="this.style.display='none'">`:"")+`<div><b>${esc(textName(s.name))}</b><span>${esc(s.releaseDate||"")}　${s.cardCount?.total||currentCards.length}枚</span></div>`;
+  setInfo.classList.remove("hidden");
+}
+
+async function fetchJson(url){
+  const res=await fetch(url);
+  if(!res.ok) throw new Error(String(res.status));
+  return await res.json();
+}
+
+async function getCardDetail(c){
+  const key=c.id || `${selectedSet?.id||""}/${c.localId||""}`;
+  if(detailCache.has(key)) return detailCache.get(key);
+
+  const urls=[];
+  if(c.id){
+    urls.push(`${API}/cards/${encodeURIComponent(c.id)}`);
+    urls.push(`${API_EN}/cards/${encodeURIComponent(c.id)}`);
+  }
+  if(selectedSet?.id && c.localId!=null){
+    urls.push(`${API}/sets/${encodeURIComponent(selectedSet.id)}/${encodeURIComponent(c.localId)}`);
+    urls.push(`${API_EN}/sets/${encodeURIComponent(selectedSet.id)}/${encodeURIComponent(c.localId)}`);
+  }
+
+  for(const url of urls){
+    try{
+      const detail=await fetchJson(url);
+      const merged={...c,...detail};
+      detailCache.set(key,merged);
+      return merged;
+    }catch(e){}
+  }
+  detailCache.set(key,c);
+  return c;
+}
+
+async function mapLimit(items, limit, fn){
+  const out=new Array(items.length);
+  let cursor=0;
+  async function worker(){
+    while(true){
+      const i=cursor++;
+      if(i>=items.length) return;
+      try{out[i]=await fn(items[i],i);}catch(e){out[i]=items[i];}
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));
+  return out;
+}
+
+async function getCardDetails(cards){
+  return mapLimit(cards,8,getCardDetail);
+}
+
+function cardMatches(c,q){
+  const needle=q.toLowerCase();
+  const name=textName(c.name).toLowerCase();
+  const id=String(c.localId||"").toLowerCase();
+  return name.includes(needle)||id.includes(needle);
+}
+
+async function globalCardSearch(name, rarity){
+  const params=[];
+  if(name) params.push(`name=${encodeURIComponent(name)}`);
+  if(rarity) params.push(`rarity=${encodeURIComponent(rarity)}`);
+  const urls=[`${API}/cards?${params.join('&')}`];
+  if(name && !/[\u3040-\u30ff\u3400-\u9fff]/.test(name)) urls.push(`${API_EN}/cards?${params.join('&')}`);
+  for(const url of urls){
+    try{
+      const data=await fetchJson(url);
+      if(Array.isArray(data)&&data.length) return data;
+    }catch(e){}
+  }
+  return [];
+}
+
+async function applyFilters(){
+  const token=++searchToken;
+  const q=cardSearch.value.trim();
+  const rarity=raritySelect.value;
+  let filtered=currentCards;
+
+  if(!q && !rarity){
+    resultCount.textContent=`${currentCards.length}枚`;
+    statusEl.textContent=`${textName(selectedSet?.name||"")}：${currentCards.length}枚（全件表示）`;
+    await renderCards(filtered);
+    return;
+  }
+
+  statusEl.textContent="検索しています…";
+
+  if(q){
+    filtered=currentCards.filter(c=>cardMatches(c,q));
+    if(!filtered.length){
+      const all=await globalCardSearch(q,rarity);
+      const ids=new Set(currentCards.map(c=>c.id));
+      filtered=all.filter(c=>ids.has(c.id));
+    }
+    if(!filtered.length){
+      // 日本語名の補完。セット内の詳細を取得して確実に検索する。
+      const details=await getCardDetails(currentCards);
+      filtered=details.filter(c=>cardMatches(c,q));
+    }
+  }
+
+  if(rarity){
+    // まず現在のカードに既にレアリティがある場合はローカルで絞る。
+    const local=filtered.filter(c=>String(c.rarity||"")===rarity);
+    if(local.length || filtered.length===0){
+      filtered=local;
+    }else{
+      // briefにレアリティが無い場合はAPIで該当レアリティを取得してIDで交差。
+      const all=await globalCardSearch(q,rarity);
+      const ids=new Set(all.map(c=>c.id));
+      filtered=filtered.filter(c=>ids.has(c.id));
+      if(!filtered.length){
+        const details=await getCardDetails(filtered.length?filtered:currentCards);
+        filtered=details.filter(c=>cardMatches(c,q||"") && String(c.rarity||"")===rarity);
+      }
+    }
+  }
+
+  if(token!==searchToken) return;
+  resultCount.textContent=`${filtered.length}枚`;
+  statusEl.textContent=`${filtered.length}件`;
+  await renderCards(filtered);
+}
+
+raritySelect.addEventListener("change",applyFilters);
+document.getElementById("searchBtn").addEventListener("click",applyFilters);
+cardSearch.addEventListener("keydown",e=>{if(e.key==="Enter")applyFilters()});
+document.getElementById("clearBtn").addEventListener("click",async()=>{
+  cardSearch.value="";raritySelect.value="";await applyFilters();
+});
+
+async function enrichMissingImages(cards){
+  const missing=cards.filter(c=>!c.image && (c.id||c.localId!=null));
+  if(!missing.length) return;
+  const details=await getCardDetails(missing);
+  details.forEach(c=>{
+    const id=esc(c.id||`${selectedSet?.id||""}-${c.localId||""}`);
+    const el=document.querySelector(`[data-card-id="${id}"]`);
+    if(!el || !c.image) return;
+    const holder=el.querySelector(".thumb-holder");
+    if(holder){
+      const img=document.createElement("img");
+      img.className="thumb";img.alt=textName(c.name);img.loading="lazy";
+      holder.replaceWith(img);
+      setImageWithFallback(img,imageCandidates(c.image));
+    }
+  });
+}
+
+async function renderCards(cards){
+  if(!cards.length){
+    results.innerHTML='<div class="empty">この条件に一致するカードがありません。</div>';
+    return;
+  }
+
+  // 全カードを表示。画像はlazy loadingなので枚数が多いパックでもスクロールできます。
+  results.innerHTML=cards.map((c,idx)=>{
+    const name=textName(c.name)||"カード";
+    const key=esc(c.id||`${selectedSet?.id||""}-${c.localId||idx}`);
+    const holder=c.image
+      ? `<div class="thumb-holder"><img class="thumb" data-img-src="1" alt="${esc(name)}" loading="lazy"></div>`
+      : `<div class="thumb-holder"><div class="thumb image-loading">画像確認中</div></div>`;
+    return `<article class="item" data-card-id="${key}">
+      ${holder}
+      <div class="item-main">
+        <div class="head"><strong>${esc(name)}</strong>${c.rarity?`<span class="rarity">${esc(c.rarity)}</span>`:""}</div>
+        <div class="meta">カード番号：${esc(c.localId||"—")}</div>
+        <div class="prices"><div class="price"><span>販売価格</span><b>—</b></div><div class="price"><span>買取価格</span><b>—</b></div></div>
+        <p class="notice">カード画像・カード情報はTCGdexから取得。価格連携は次の段階で追加します。</p>
+      </div>
+    </article>`;
+  }).join("");
+
+  cards.forEach(c=>{
+    const key=esc(c.id||`${selectedSet?.id||""}-${c.localId||""}`);
+    const article=document.querySelector(`[data-card-id="${key}"]`);
+    const img=article?.querySelector("img[data-img-src]");
+    if(img) setImageWithFallback(img,imageCandidates(c.image));
+  });
+
+  // briefに画像が無いカードだけ詳細APIで補完。
+  await enrichMissingImages(cards);
+}
+
+loadSets();
+
+</script>
+</body>
+</html>
